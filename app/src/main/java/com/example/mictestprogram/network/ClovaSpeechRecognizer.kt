@@ -11,8 +11,8 @@ class ClovaSpeechRecognizer {
 
     private val endpoint = "https://naveropenapi.apigw.ntruss.com/recog/v1/stt?lang=Kor"
 
-    private val apiKeyId = "여기에 키를 입력하세요"
-    private val apiKeySecret = "여기에 키를 입력하세요"
+    private val apiKeyId = "w34dmlbfum"
+    private val apiKeySecret = "P9NM0AOgTzkDUm7OucAcitvXmNXHNnGX90tvcesm"
 
     suspend fun recognize(wavBytes: ByteArray): String = withContext(Dispatchers.IO) {
         val connection = (URL(endpoint).openConnection() as HttpURLConnection).apply {
