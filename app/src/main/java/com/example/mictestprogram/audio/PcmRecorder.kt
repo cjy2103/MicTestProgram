@@ -1,6 +1,5 @@
 package com.example.mictestprogram.audio
 
-import android.annotation.SuppressLint
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
@@ -16,7 +15,6 @@ class PcmRecorder {
     private val channelConfig = AudioFormat.CHANNEL_IN_MONO
     private val audioFormat = AudioFormat.ENCODING_PCM_16BIT
 
-    @SuppressLint("MissingPermission")
     suspend fun recordWav(durationMillis: Long): ByteArray = withContext(Dispatchers.IO) {
         val minBufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)
         val bufferSize = maxOf(minBufferSize, 4096)
