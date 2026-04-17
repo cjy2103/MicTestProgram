@@ -85,22 +85,15 @@ class TestViewModel(
 
         viewModelScope.launch {
             val results = mutableListOf<TestRoundResult>()
+            val effectiveRounds = rounds.coerceAtMost(testWords.size)
+            val selectedWords = testWords.take(effectiveRounds)
+
             _uiState.value = UiState(
                 hasPermission = true,
                 isRunning = true,
-                totalRounds = rounds,
+                totalRounds = effectiveRounds,
                 phaseMessage = "테스트를 준비 중입니다..."
             )
-
-            val selectedWords = if (rounds <= testWords.size) {
-                testWords.shuffled().take(rounds)
-            } else {
-                buildList {
-                    while (size < rounds) {
-                        addAll(testWords.shuffled())
-                    }
-                }.take(rounds)
-            }
 
             selectedWords.forEachIndexed { index, targetWord ->
                 _uiState.value = _uiState.value.copy(
@@ -144,10 +137,10 @@ class TestViewModel(
             }
 
             val correctCount = results.count { it.isCorrect }
-            val accuracy = if (rounds == 0) 0.0 else (correctCount * 100.0 / rounds)
+            val accuracy = if (effectiveRounds == 0) 0.0 else (correctCount * 100.0 / effectiveRounds)
 
             val summary = SessionSummary(
-                total = rounds,
+                total = effectiveRounds,
                 correct = correctCount,
                 accuracy = (accuracy * 10).roundToInt() / 10.0,
                 roundResults = results
@@ -156,7 +149,7 @@ class TestViewModel(
             repository.saveResult(
                 TestResultEntity(
                     testDateMillis = System.currentTimeMillis(),
-                    totalCount = rounds,
+                    totalCount = effectiveRounds,
                     correctCount = correctCount,
                     accuracy = summary.accuracy,
                     details = results.joinToString(" | ") {
@@ -178,8 +171,8 @@ class TestViewModel(
     }
 
     private fun beep() {
-        ToneGenerator(AudioManager.STREAM_NOTIFICATION, 80).apply {
-            startTone(ToneGenerator.TONE_PROP_BEEP, 200)
+        ToneGenerator(AudioManager.STREAM_ALARM, 100).apply {
+            startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 350)
             release()
         }
     }
