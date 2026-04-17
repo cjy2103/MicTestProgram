@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.example.mictestprogram.app-mergeDebugResources-62:/values-v18/values-v18.xml",
+            "map": [
+                {
+                    "source": "/Users/sd/.gradle/caches/9.0-milestone-1/transforms/99ee22ae36412c1a69f544bf2f49b3a0/transformed/appcompat-1.7.0/res/values-v18/values-v18.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "48",
+                        "endOffsets": "99"
+                    }
+                }
+            ]
+        }
+    ]
+}
