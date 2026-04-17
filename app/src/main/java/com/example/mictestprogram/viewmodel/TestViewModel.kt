@@ -20,9 +20,15 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 private val testWords = listOf(
-    "마이크", "음성", "테스트", "안드로이드", "코틀린",
-    "컴포즈", "인식", "정확도", "기록", "평가"
+    "파워온", "파워오프", "홈으로", "그만", "계속", "하지마", "해제", "도우미",
+    "뉴스", "뉴스안내", "뉴스정보", "날씨정보", "현재시간", "할일", "현재", "확인",
+    "도시안내", "행사안내", "학습안내", "홍보관소개", "회전", "걷기동작", "그쪽으로",
+    "현관으로와", "냉장고로와", "나를봐", "느리게", "공가져와", "도리도리", "꼬리흔들어",
+    "티비켜", "티비꺼", "티비전원", "채널4번", "티비일번", "티비이번", "티비오번",
+    "티비육번", "티비칠번", "티비십일번", "거실불켜라", "거실소등", "거실점등", "거실어둡게",
+    "거실조명꺼", "거실조명꺼라", "홈바불켜", "홈바불꺼", "홈바소등", "풍량설정"
 )
+
 
 data class TestRoundResult(
     val targetWord: String,
@@ -41,7 +47,7 @@ data class UiState(
     val hasPermission: Boolean = false,
     val isRunning: Boolean = false,
     val currentRound: Int = 0,
-    val totalRounds: Int = 5,
+    val totalRounds: Int = testWords.size,
     val currentWord: String = "",
     val phaseMessage: String = "시작 버튼을 누르면 테스트가 시작됩니다.",
     val lastRecognizedWord: String = "",
@@ -70,7 +76,7 @@ class TestViewModel(
         _uiState.value = _uiState.value.copy(hasPermission = true)
     }
 
-    fun startTest(rounds: Int = 5, speakingDurationMillis: Long = 2_500L) {
+    fun startTest(rounds: Int = testWords.size, speakingDurationMillis: Long = 2_500L) {
         if (_uiState.value.isRunning) return
         if (!_uiState.value.hasPermission) {
             _uiState.value = _uiState.value.copy(errorMessage = "마이크 권한이 필요합니다.")
@@ -86,8 +92,17 @@ class TestViewModel(
                 phaseMessage = "테스트를 준비 중입니다..."
             )
 
-            repeat(rounds) { index ->
-                val targetWord = testWords.shuffled().first()
+            val selectedWords = if (rounds <= testWords.size) {
+                testWords.shuffled().take(rounds)
+            } else {
+                buildList {
+                    while (size < rounds) {
+                        addAll(testWords.shuffled())
+                    }
+                }.take(rounds)
+            }
+
+            selectedWords.forEachIndexed { index, targetWord ->
                 _uiState.value = _uiState.value.copy(
                     currentRound = index + 1,
                     currentWord = targetWord,
