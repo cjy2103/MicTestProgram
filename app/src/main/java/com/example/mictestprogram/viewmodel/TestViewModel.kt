@@ -70,7 +70,7 @@ class TestViewModel(
         _uiState.value = _uiState.value.copy(hasPermission = true)
     }
 
-    fun startTest(rounds: Int = 5, speakingDurationMillis: Long = 2_000L) {
+    fun startTest(rounds: Int = 5, speakingDurationMillis: Long = 2_500L) {
         if (_uiState.value.isRunning) return
         if (!_uiState.value.hasPermission) {
             _uiState.value = _uiState.value.copy(errorMessage = "마이크 권한이 필요합니다.")

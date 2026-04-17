@@ -28,8 +28,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -113,25 +115,52 @@ private fun TestScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(20.dp),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.Start
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("음성 인식 평가", style = MaterialTheme.typography.headlineSmall)
-        Spacer(Modifier.height(12.dp))
-        Text(state.phaseMessage, style = MaterialTheme.typography.bodyLarge)
+        Text("음성 인식 평가", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(16.dp))
+        Text(
+            text = state.phaseMessage,
+            style = MaterialTheme.typography.titleLarge,
+            textAlign = TextAlign.Center
+        )
+        Spacer(Modifier.height(20.dp))
 
-        if (state.currentWord.isNotBlank()) {
-            Text("제시 단어", style = MaterialTheme.typography.labelLarge)
-            Text(state.currentWord, style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(12.dp))
+        if (state.isRunning) {
+            Text("남은 시간", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Text(
+                text = "${"%.1f".format(state.remainingMillis / 1000f)}초",
+                fontSize = 56.sp,
+                fontWeight = FontWeight.ExtraBold,
+                textAlign = TextAlign.Center
+            )
+            Spacer(Modifier.height(18.dp))
+
+            Text("테스트 단어", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Text(
+                text = state.currentWord.ifBlank { "(준비중)" },
+                fontSize = 72.sp,
+                fontWeight = FontWeight.ExtraBold,
+                textAlign = TextAlign.Center
+            )
+            Spacer(Modifier.height(18.dp))
+
+            Text("내가 말한 단어", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Text(
+                text = state.lastRecognizedWord.ifBlank { "(대기중)" },
+                fontSize = 56.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+            Spacer(Modifier.height(14.dp))
         }
 
-        Text("진행: ${state.currentRound}/${state.totalRounds}")
-        Spacer(Modifier.height(12.dp))
+        Text("진행: ${state.currentRound}/${state.totalRounds}", style = MaterialTheme.typography.titleLarge)
+        Spacer(Modifier.height(16.dp))
 
         Button(onClick = onStartClick, enabled = !state.isRunning) {
-            Text(if (state.isRunning) "테스트 진행 중..." else "테스트 시작")
+            Text(if (state.isRunning) "테스트 진행 중..." else "테스트 시작", fontSize = 24.sp)
         }
 
         Spacer(Modifier.height(20.dp))
