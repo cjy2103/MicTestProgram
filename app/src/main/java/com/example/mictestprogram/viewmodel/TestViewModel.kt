@@ -91,7 +91,7 @@ class TestViewModel(
                 _uiState.value = _uiState.value.copy(
                     currentRound = index + 1,
                     currentWord = targetWord,
-                    phaseMessage = "삐 소리 후 ${speakingDurationMillis / 1000.0}초 동안 단어를 말해주세요.",
+                    phaseMessage = "삐 소리 후 ${speakingDurationMillis / 2000.0}초 동안 단어를 말해주세요.",
                     lastRecognizedWord = "",
                     currentRoundCorrect = null,
                     errorMessage = null
