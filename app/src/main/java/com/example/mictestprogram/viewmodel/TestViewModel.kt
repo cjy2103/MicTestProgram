@@ -184,7 +184,7 @@ class TestViewModel(
 
                 val cleanedTarget = targetWord.trim()
                 val cleanedRecognized = recognized.trim()
-                val isCorrect = cleanedTarget == cleanedRecognized
+                val isCorrect = isRecognizedMatch(cleanedTarget, cleanedRecognized)
 
                 results += TestRoundResult(
                     targetWord = targetWord,
@@ -196,7 +196,7 @@ class TestViewModel(
                     lastRecognizedWord = cleanedRecognized.ifBlank { "(인식 실패)" },
                     remainingMillis = 0L,
                     currentRoundCorrect = isCorrect,
-                    phaseMessage = "제시 단어: $targetWord / 인식 단어: ${cleanedRecognized.ifBlank { "(인식 실패)" }}"
+                    phaseMessage = "제시 단어: $targetWord / 인식 단어: ${cleanedRecognized.ifBlank { "(인식 실패)" }}/${if (isCorrect) "인정" else "불일치"}"
                 )
 
                 delay(1_000)
@@ -242,6 +242,24 @@ class TestViewModel(
             startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 350)
             release()
         }
+    }
+
+    private fun isRecognizedMatch(target: String, recognized: String): Boolean {
+        if (recognized.isBlank()) return false
+
+        val normalizedTarget = normalizeForComparison(target)
+        val normalizedRecognized = normalizeForComparison(recognized)
+        if (normalizedTarget.isBlank() || normalizedRecognized.isBlank()) return false
+
+        // 띄어쓰기/특수문자 보정만 허용하고 의미가 다른 단어는 오답 처리
+        return normalizedTarget == normalizedRecognized
+    }
+
+    private fun normalizeForComparison(value: String): String {
+        return value
+            .lowercase()
+            .replace("\\s+".toRegex(), "")
+            .replace("[^0-9a-z가-힣]".toRegex(), "")
     }
 }
 
