@@ -51,6 +51,7 @@ data class UiState(
     val currentWord: String = "",
     val phaseMessage: String = "시작 버튼을 누르면 테스트가 시작됩니다.",
     val lastRecognizedWord: String = "",
+    val remainingMillis: Long = 0L,
     val currentRoundCorrect: Boolean? = null,
     val sessionSummary: SessionSummary? = null,
     val errorMessage: String? = null
@@ -100,7 +101,8 @@ class TestViewModel(
                     currentRound = index + 1,
                     currentWord = targetWord,
                     phaseMessage = "삐 소리 후 ${speakingDurationMillis / 1000.0}초 동안 단어를 말해주세요.",
-                    lastRecognizedWord = "",
+                    lastRecognizedWord = "(대기중)",
+                    remainingMillis = speakingDurationMillis,
                     currentRoundCorrect = null,
                     errorMessage = null
                 )
@@ -109,12 +111,23 @@ class TestViewModel(
                 beep()
                 delay(120)
 
+                val timerJob = viewModelScope.launch {
+                    var remain = speakingDurationMillis
+                    while (remain >= 0L) {
+                        _uiState.value = _uiState.value.copy(remainingMillis = remain)
+                        delay(100)
+                        remain -= 100
+                    }
+                }
+
                 val recognized = runCatching {
                     val wav = recorder.recordWav(speakingDurationMillis)
                     recognizer.recognize(wav)
                 }.getOrElse {
                     _uiState.value = _uiState.value.copy(errorMessage = "음성 인식 중 오류: ${it.message}")
                     ""
+                }.also {
+                    timerJob.cancel()
                 }
 
                 val cleanedTarget = targetWord.trim()
@@ -129,6 +142,7 @@ class TestViewModel(
 
                 _uiState.value = _uiState.value.copy(
                     lastRecognizedWord = cleanedRecognized.ifBlank { "(인식 실패)" },
+                    remainingMillis = 0L,
                     currentRoundCorrect = isCorrect,
                     phaseMessage = "제시 단어: $targetWord / 인식 단어: ${cleanedRecognized.ifBlank { "(인식 실패)" }}"
                 )
@@ -160,6 +174,7 @@ class TestViewModel(
 
             _uiState.value = _uiState.value.copy(
                 isRunning = false,
+                remainingMillis = 0L,
                 sessionSummary = summary,
                 phaseMessage = "테스트 완료"
             )
